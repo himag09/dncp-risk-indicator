@@ -67,7 +67,8 @@ class R064Repository(ABC):
         Obtiene el listado de procesos que activan R064.
         Retorna un diccionario con:
             - data: list[dict] con release_id, ocid, title, process_date, contracts,
-              amended_contracts, amendment_count, first_amendment_date, entity
+              amended_contracts, amendment_count, first_amendment_date,
+              flagged_contracts, entity
             - total_count: int (total de registros sin paginar)
         """
         ...

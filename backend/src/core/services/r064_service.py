@@ -114,6 +114,7 @@ class R064Service:
                     amended_contracts=item["amended_contracts"],
                     amendment_count=item["amendment_count"],
                     first_amendment_date=item["first_amendment_date"],
+                    flagged_contracts=item["flagged_contracts"],
                     entity=item["entity"],
                     api_url=url_api,
                 )

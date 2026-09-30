@@ -67,7 +67,7 @@ class R063Repository(ABC):
         Obtiene el listado de procesos que activan R063.
         Retorna un diccionario con:
             - data: list[dict] con release_id, ocid, title, process_date, active_contracts,
-              unsigned_contracts, entity
+              unsigned_contracts, flagged_contracts, entity
             - total_count: int (total de registros sin paginar)
         """
         ...

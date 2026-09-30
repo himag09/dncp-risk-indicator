@@ -7,6 +7,7 @@ from src.infrastructure.async_db.sql_common import (
     SIN_NOMBRE_ENTIDAD,
     ConsultaSQL,
     a_float,
+    contratos_marcados,
     nombre_comprador,
     porcentaje,
     rol_ranking,
@@ -39,6 +40,8 @@ class AsyncpgR064Repository(R064Repository):
             SELECT
                 r.release_id,
                 r.ocid,
+                c.contract_id,
+                c.award_id,
                 {FECHA_CONTRATO} AS fecha,
                 COALESCE(e.cantidad, 0) AS enmiendas,
                 e.primera
@@ -58,7 +61,10 @@ class AsyncpgR064Repository(R064Repository):
                 COUNT(*) AS contracts,
                 COUNT(*) FILTER (WHERE enmiendas > 0) AS amended_contracts,
                 SUM(enmiendas) AS amendment_count,
-                MIN(primera) AS first_amendment_date
+                MIN(primera) AS first_amendment_date,
+                -- los contratos marcados, para enlazar a su ficha en el portal
+                ARRAY_AGG(contract_id ORDER BY contract_id) FILTER (WHERE enmiendas > 0) AS marcados_id,
+                ARRAY_AGG(award_id ORDER BY contract_id) FILTER (WHERE enmiendas > 0) AS marcados_award
             FROM contratos
             GROUP BY release_id, ocid
             HAVING {q.anio("MIN(fecha)", year)}
@@ -200,6 +206,8 @@ class AsyncpgR064Repository(R064Repository):
             p.amended_contracts,
             p.amendment_count,
             p.first_amendment_date,
+            p.marcados_id,
+            p.marcados_award,
             {nombre_comprador("p.release_id")} AS entity,
             COUNT(*) OVER () AS total_count
         FROM procesos p
@@ -222,6 +230,7 @@ class AsyncpgR064Repository(R064Repository):
                     "amended_contracts": row["amended_contracts"],
                     "amendment_count": row["amendment_count"],
                     "first_amendment_date": row["first_amendment_date"],
+                    "flagged_contracts": contratos_marcados(row),
                     "entity": row["entity"],
                 }
                 for row in rows

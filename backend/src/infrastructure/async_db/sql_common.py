@@ -63,6 +63,14 @@ def a_float(valor) -> float:
     return float(valor) if valor is not None else 0.0
 
 
+def contratos_marcados(row) -> list[dict]:
+    """Contratos marcados de un proceso (R063, R064): código y award_id."""
+    return [
+        {"contract_id": cid, "award_id": aid}
+        for cid, aid in zip(row["marcados_id"], row["marcados_award"])
+    ]
+
+
 class ConsultaSQL:
     """Arma partes de la consulta y junta los parámetros ($1, $2, ...)."""
 

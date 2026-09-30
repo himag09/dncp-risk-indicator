@@ -18,8 +18,8 @@ import DataUpdatedAt from '@/components/DataUpdatedAt';
 const NAV_LINKS = [
   { to: '/', icon: Home, label: 'Inicio' },
   { to: '/r018', icon: AlertTriangle, label: 'R018: Única Oferta' },
-  { to: '/r063', icon: FileX, label: 'R063: Sin Publicar' },
-  { to: '/r064', icon: Edit3, label: 'R064: Modificados' },
+  { to: '/r063', icon: FileX, label: 'R063: Contrato no Publicado' },
+  { to: '/r064', icon: Edit3, label: 'R064: Contrato Modificado' },
 ];
 
 const MobileMenuItem = ({ to, icon, children }) => (
@@ -45,7 +45,8 @@ const MobileMenuItem = ({ to, icon, children }) => (
 );
 
 export const MainLayout = () => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  // con los nombres completos el menu recien entra en una linea desde xl (1280px)
+  const isMobile = useBreakpointValue({ base: true, xl: false });
   // El inicio tiene su propio pie, que ya muestra la fecha de actualización.
   const esInicio = useLocation().pathname === '/';
 

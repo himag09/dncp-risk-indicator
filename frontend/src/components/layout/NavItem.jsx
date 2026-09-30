@@ -19,7 +19,9 @@ const NavItem = ({ to, icon, children }) => (
   >
     <NavLink to={to} end={to === '/'}>
       <Icon as={icon} boxSize={4} />
-      <Text fontWeight='medium'>{children}</Text>
+      <Text fontWeight='medium' whiteSpace='nowrap'>
+        {children}
+      </Text>
     </NavLink>
   </ChakraLink>
 );

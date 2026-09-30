@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.interfaces.api.schemas.common import FlaggedContract
+
 
 class R064Filters(BaseModel):
     """Filtros aplicados en la consulta (solo los que el usuario envió)."""
@@ -113,6 +115,9 @@ class R064ProcessItem(BaseModel):
     amendment_count: int = Field(..., description="Total de enmiendas del proceso")
     first_amendment_date: datetime | None = Field(
         None, description="Fecha de la primera enmienda (ISO 8601), si está publicada"
+    )
+    flagged_contracts: list[FlaggedContract] = Field(
+        ..., description="Contratos con al menos una enmienda: código y award_id de cada uno"
     )
     entity: str | None = Field(None, description="Nombre de la entidad compradora")
     api_url: str | None = Field(None, description="Enlace a la API con datos completos")

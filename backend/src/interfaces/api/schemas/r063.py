@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.interfaces.api.schemas.common import FlaggedContract
+
 
 class R063Filters(BaseModel):
     """Filtros aplicados en la consulta (solo los que el usuario envió)."""
@@ -57,7 +59,9 @@ class R063TimeSeriesResponse(BaseModel):
 class R063TopEntityItem(BaseModel):
     """Entidad en top de R063."""
 
-    entity: str = Field(..., description="Nombre de la entidad o unidad de contratación")
+    entity: str = Field(
+        ..., description="Nombre de la entidad o unidad de contratación"
+    )
     entity_id: str = Field(
         ...,
         description="party_id de la entidad (buyer) o, con buyer_id, de la unidad (procuringEntity)",
@@ -106,6 +110,10 @@ class R063ProcessItem(BaseModel):
     active_contracts: int = Field(..., description="Contratos activos del proceso")
     unsigned_contracts: int = Field(
         ..., description="Contratos activos sin documento firmado publicado"
+    )
+    flagged_contracts: list[FlaggedContract] = Field(
+        ...,
+        description="Contratos activos sin documento firmado publicado: código y award_id de cada uno",
     )
     entity: str | None = Field(None, description="Nombre de la entidad compradora")
     api_url: str | None = Field(None, description="Enlace a la API con datos completos")

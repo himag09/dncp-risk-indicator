@@ -1,12 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Container, Flex, Heading, Text, VStack } from '@chakra-ui/react';
 import { FileText, Edit3 } from 'lucide-react';
 import ContextBox from '../components/ContextBox';
 import FilterBar from '../components/FilterBar';
 import KpiSummary from '../components/KpiSummary';
 import TimeSeriesChart from '../components/TimeSeriesChart';
+import NotaDatos from '../components/NotaDatos';
 import EntityRankingSwitcher from '../components/EntityRankingSwitcher';
 import DataTable from '../components/DataTable';
+import ContratosMarcados from '../components/ContratosMarcados';
 import useCachedIndicatorData from '../hooks/useCachedIndicatorData';
 import useCommonData from '../hooks/useCommonData';
 import useFiltersFromURL from '../hooks/useFiltersFromURL';
@@ -20,14 +22,14 @@ import { formatDate, formatNumber, formatPercentage } from '../utils/format';
 import { useColorModeValue } from '@/hooks/use-color-mode';
 
 const CONTEXT_DESCRIPTION =
-  'Una enmienda es un cambio al contrato original después de firmado. Si bien algunas modificaciones son normales, una cantidad alta de enmiendas puede indicar que el contrato original no se planificó bien, o que se está modificando para favorecer al proveedor después de la adjudicación. Esto puede aumentar el costo final para el estado.';
+  'Una modificación es un cambio al contrato después de firmado, por ejemplo una ampliación de monto o de plazo. Si bien algunas modificaciones son normales, una cantidad alta puede indicar que el contrato original no se planificó bien, o que se está modificando para favorecer al proveedor después de la adjudicación. Esto puede aumentar el costo final para el estado.';
 
 const KPI_LABELS = {
   total: 'Procesos con contratos firmados',
-  alert: 'Procesos con algún contrato enmendado',
+  alert: 'Procesos con algún contrato modificado',
   percentage: 'Porcentaje',
   formula:
-    'Fórmula OCP: (Procesos con algún contrato enmendado / Procesos con contratos activos o terminados) × 100',
+    'Fórmula OCP: (Procesos con algún contrato modificado / Procesos con contratos activos o terminados) × 100',
 };
 
 const KPI_ICONS = {
@@ -44,15 +46,28 @@ const TABLE_COLUMNS = [
   },
   {
     key: 'first_amendment_date',
-    header: 'Primera enmienda',
+    header: 'Primera modificación',
     type: 'short',
     render: row => formatDate(row.first_amendment_date),
   },
   {
     key: 'amendment_count',
-    header: 'Enmiendas',
+    header: 'Modificaciones',
     type: 'number',
     render: row => row.amendment_count ?? '—',
+  },
+  {
+    key: 'amended_contracts',
+    header: 'Contratos modificados',
+    type: 'number',
+    render: row => (
+      <Flex direction='column' align='flex-end' gap={0.5}>
+        <Text>
+          {row.amended_contracts} de {row.contracts}
+        </Text>
+        <ContratosMarcados contratos={row.flagged_contracts} />
+      </Flex>
+    ),
   },
   {
     key: 'entity',
@@ -72,7 +87,7 @@ const RANKING_COLUMNS = [
   },
   {
     key: 'r064_count',
-    header: 'Con enmiendas',
+    header: 'Con modificaciones',
     type: 'number',
     render: row => formatNumber(row.r064_count),
   },
@@ -138,10 +153,10 @@ export default function IndicatorR064() {
             textTransform='uppercase'
             letterSpacing='wide'
           >
-            Indicador R064 · Modificaciones Contractuales
+            Indicador R064 · Contrato Modificado
           </Text>
           <Heading as='h1' size={{ base: 'xl', md: '2xl' }} color='fg'>
-            Procesos con Contratos Enmendados
+            Procesos con Contratos Modificados
           </Heading>
         </Box>
 
@@ -175,6 +190,16 @@ export default function IndicatorR064() {
           title='¿Está empeorando o mejorando?'
           percentageKey='r064_percentage'
           colorHex={chartLineColor}
+          nota={
+            // solo aplica sin filtro de año o desde 2024
+            (filters.year == null || filters.year >= 2024) && (
+              <NotaDatos label='Nota sobre los datos desde mediados de 2024'>
+                Desde mediados de 2024 el porcentaje sale más bajo de lo real: los contratos
+                recientes todavía no tuvieron tiempo de recibir modificaciones, y los datos abiertos
+                de la DNCP no incluyen parte de las modificaciones que sí figuran en su portal.
+              </NotaDatos>
+            )
+          }
         />
 
         <EntityRankingSwitcher
@@ -188,7 +213,7 @@ export default function IndicatorR064() {
           tableTitle={
             entidadElegida
               ? `Unidades de contratación de ${entidadElegida}`
-              : 'Ranking de Instituciones — Modificaciones de Contrato'
+              : 'Ranking de Instituciones — Contrato Modificado'
           }
           nameKey='entity'
           countKey='r064_count'
@@ -207,7 +232,7 @@ export default function IndicatorR064() {
           fetchFunction={fetchR064Processes}
           filters={filters}
           indicatorKey='r064'
-          title='Procesos con contratos enmendados'
+          title='Procesos con contratos modificados'
         />
       </VStack>
     </Container>

@@ -228,7 +228,7 @@ export default function IndicatorR018() {
               tableTitle={
                 entidadElegida
                   ? `Unidades de contratación de ${entidadElegida}`
-                  : 'Ranking de Instituciones — Licitaciones con Único Oferente'
+                  : 'Ranking de Instituciones — Única Oferta'
               }
               nameKey='entity'
               countKey='r018_count'
@@ -248,7 +248,7 @@ export default function IndicatorR018() {
               fetchFunction={fetchR018Suppliers}
               columns={SUPPLIER_RANKING_COLUMNS}
               title='¿Qué empresas ganan como oferente único?'
-              tableTitle='Ranking de Proveedores — Oferentes Únicos'
+              tableTitle='Ranking de Proveedores — Única Oferta'
               nameKey='supplier_name'
               countKey='sole_bidder_count'
               colorHex={chartLineColor}

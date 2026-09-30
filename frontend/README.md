@@ -6,7 +6,7 @@ formato OCDS.
 
 Está pensada para personas sin conocimientos de compras públicas. Cada indicador se explica en
 palabras simples, con su evolución mes a mes, las instituciones y proveedores con más casos y el
-listado de procesos, cada uno con un enlace a su registro en la DNCP.
+listado de procesos, cada uno con un enlace a su página en el portal de la DNCP.
 
 Los indicadores no acusan a nadie: señalan dónde conviene mirar.
 
@@ -18,7 +18,7 @@ Proyecto académico de la Universidad Autónoma de Asunción (UAA).
 |------|-----------|---------|
 | `/r018` | R018: única oferta | Licitaciones competitivas con un solo oferente / licitaciones competitivas |
 | `/r063` | R063: contrato no publicado | Procesos con algún contrato activo sin documento firmado / procesos con contratos activos |
-| `/r064` | R064: contrato modificado | Procesos con algún contrato enmendado / procesos con contratos activos o terminados |
+| `/r064` | R064: contrato modificado | Procesos con algún contrato modificado / procesos con contratos activos o terminados |
 
 Los tres cuentan por proceso de contratación. La definición completa está en el
 [README del backend](../backend/README.md#indicadores-de-riesgo).
@@ -31,7 +31,13 @@ Cada página tiene:
 - el ranking de instituciones (Top 10 y tabla completa). Al hacer clic en una institución se
   filtra la página y el ranking pasa a mostrar sus unidades de contratación;
 - el ranking de proveedores (solo R018);
-- el listado de casos con el enlace "Ver fuente".
+- el listado de casos, con dos enlaces por proceso: "Ver licitación" y "Datos (JSON)" (el record
+  OCDS de la API). "Ver licitación" abre el buscador de licitaciones del portal con el número de
+  licitación, que sale del ocid.
+- en R063 y R064, además, el enlace a la ficha de cada contrato marcado en el portal (sus
+  documentos, modificaciones y terminación), con el `award_id` del contrato. Si es uno solo se
+  ve su código; si son varios, "Ver los N" abre la lista. No se usa el buscador de contratos
+  porque no encuentra las contrataciones por excepción (CE-).
 
 La página de inicio (`/`) muestra el KPI histórico de los tres indicadores.
 
@@ -165,12 +171,16 @@ Todos reciben `year` y `buyer_id`; R018 además `proc_method`. Los paginados rec
 - Modo claro y oscuro. La preferencia se guarda en el navegador; si no hay, se usa la del sistema.
 - Números, porcentajes y fechas en formato `es-PY`. Las fechas se muestran en hora de Paraguay.
 - El pie muestra la fecha de la última actualización de los datos.
+- Las aclaraciones sobre los datos van en un ícono (i) junto al título: con mouse se abren al
+  pasar por encima y en el celular al tocarlo (por ejemplo, las de los gráficos de R063 y R064).
 - Mientras carga se ven esqueletos. Si la API falla, cada bloque muestra un aviso con
   "Reintentar" en vez de un 0 o una tabla vacía, que se leería como "no hay riesgo".
 - Accesibilidad: las filas clicables se usan con teclado (Enter o Espacio); los textos largos
   hacen salto de línea en vez de cortarse; el Top 10 es una lista HTML; al abrir "Ver todas" el
   foco pasa al título del bloque; los botones con icono tienen etiqueta.
 - La página 404 vuelve al inicio a los 5 segundos.
+- Si una página falla al dibujarse, se muestra un aviso con "Recargar" y "Volver al inicio" en
+  lugar de la pantalla de error de React Router; el detalle queda en la consola.
 
 ## Tests
 
@@ -182,6 +192,10 @@ npm test
 - `src/hooks/useFiltersFromURL.test.jsx`: lectura y escritura de filtros, y que el objeto de
   filtros no cambie entre renders si la URL es la misma.
 - `src/lib/apiClient.test.js`: URL y parámetros de los pedidos, y errores HTTP y de red.
+- `src/utils/dncp.test.js`: enlaces al portal de la DNCP (buscador de licitaciones y ficha del
+  contrato).
+- `src/components/ContratosMarcados.test.jsx`: enlaces a los contratos marcados (uno, varios, sin
+  `award_id` y API sin el campo).
 
 ## Despliegue
 

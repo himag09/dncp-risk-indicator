@@ -7,6 +7,7 @@ from src.infrastructure.async_db.sql_common import (
     SIN_NOMBRE_ENTIDAD,
     ConsultaSQL,
     a_float,
+    contratos_marcados,
     nombre_comprador,
     porcentaje,
     rol_ranking,
@@ -38,6 +39,8 @@ class AsyncpgR063Repository(R063Repository):
             SELECT
                 r.release_id,
                 r.ocid,
+                c.contract_id,
+                c.award_id,
                 {FECHA_CONTRATO} AS fecha,
                 f.contract_id IS NULL AS sin_firmado
             FROM latest_releases r
@@ -54,7 +57,10 @@ class AsyncpgR063Repository(R063Repository):
                 ocid,
                 MIN(fecha) AS fecha,
                 COUNT(*) AS active_contracts,
-                COUNT(*) FILTER (WHERE sin_firmado) AS unsigned_contracts
+                COUNT(*) FILTER (WHERE sin_firmado) AS unsigned_contracts,
+                -- los contratos marcados, para enlazar a su ficha en el portal
+                ARRAY_AGG(contract_id ORDER BY contract_id) FILTER (WHERE sin_firmado) AS marcados_id,
+                ARRAY_AGG(award_id ORDER BY contract_id) FILTER (WHERE sin_firmado) AS marcados_award
             FROM contratos
             GROUP BY release_id, ocid
             HAVING {q.anio("MIN(fecha)", year)}
@@ -194,6 +200,8 @@ class AsyncpgR063Repository(R063Repository):
             p.fecha AS process_date,
             p.active_contracts,
             p.unsigned_contracts,
+            p.marcados_id,
+            p.marcados_award,
             {nombre_comprador("p.release_id")} AS entity,
             COUNT(*) OVER () AS total_count
         FROM procesos p
@@ -214,6 +222,7 @@ class AsyncpgR063Repository(R063Repository):
                     "process_date": row["process_date"],
                     "active_contracts": row["active_contracts"],
                     "unsigned_contracts": row["unsigned_contracts"],
+                    "flagged_contracts": contratos_marcados(row),
                     "entity": row["entity"],
                 }
                 for row in rows

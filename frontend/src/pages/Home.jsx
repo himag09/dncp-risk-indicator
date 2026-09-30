@@ -72,7 +72,7 @@ export default function Home() {
 
             <KpiCard
               icon={FileX}
-              label='Opacidad Contractual'
+              label='Contrato no Publicado'
               value={loading063 ? null : error063 ? '—' : formatPercentage(r063?.r063_percentage)}
               description={
                 loading063
@@ -90,14 +90,14 @@ export default function Home() {
 
             <KpiCard
               icon={Edit3}
-              label='Modificaciones'
+              label='Contrato Modificado'
               value={loading064 ? null : error064 ? '—' : formatPercentage(r064?.r064_percentage)}
               description={
                 loading064
                   ? null
                   : error064
                     ? ERROR_KPI
-                    : `De ${formatNumber(r064?.total_processes)} procesos con contratos firmados, ${formatNumber(r064?.r064_count)} tuvieron modificaciones o adendas después de la firma.`
+                    : `De ${formatNumber(r064?.total_processes)} procesos con contratos firmados, ${formatNumber(r064?.r064_count)} tuvieron alguna modificación después de la firma.`
               }
               to='/r064'
               accentColor='teal.solid'

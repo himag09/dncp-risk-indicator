@@ -8,7 +8,7 @@ import {
   YAxis,
   ResponsiveContainer,
 } from 'recharts';
-import { Box, Heading, Skeleton, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, Skeleton, Text } from '@chakra-ui/react';
 import { useColorModeValue } from '../hooks/use-color-mode';
 import { formatPercentage } from '../utils/format';
 import ErrorState from './ErrorState';
@@ -22,6 +22,7 @@ export default function TimeSeriesChart({
   title = '¿Está empeorando o mejorando?',
   percentageKey = 'r018_percentage',
   colorHex = '#dd6b20',
+  nota = null, // aclaracion opcional junto al titulo (NotaDatos)
 }) {
   const mutedColor = useColorModeValue('#4a5568', '#a0aec0'); // gray.600 / gray.400
   const gridColor = useColorModeValue('#e2e8f0', '#2d3748'); // border claro / oscuro
@@ -47,9 +48,12 @@ export default function TimeSeriesChart({
   if (error) {
     return (
       <Box>
-        <Heading as='h3' size='md' mb={4} color='fg'>
-          {title}
-        </Heading>
+        <Flex align='center' gap={1} mb={4}>
+          <Heading as='h3' size='md' color='fg'>
+            {title}
+          </Heading>
+          {nota}
+        </Flex>
         <ErrorState title='No se pudo cargar la evolución mensual' onRetry={onRetry} />
       </Box>
     );
@@ -58,9 +62,12 @@ export default function TimeSeriesChart({
   if (!data.length) {
     return (
       <Box>
-        <Heading as='h3' size='md' mb={4} color='fg'>
-          {title}
-        </Heading>
+        <Flex align='center' gap={1} mb={4}>
+          <Heading as='h3' size='md' color='fg'>
+            {title}
+          </Heading>
+          {nota}
+        </Flex>
         <Box
           textAlign='center'
           py={10}
@@ -80,9 +87,12 @@ export default function TimeSeriesChart({
 
   return (
     <Box>
-      <Heading as='h3' size='md' mb={4} color='fg'>
-        {title}
-      </Heading>
+      <Flex align='center' gap={1} mb={4}>
+        <Heading as='h3' size='md' color='fg'>
+          {title}
+        </Heading>
+        {nota}
+      </Flex>
       <Box
         bg='bg.panel'
         borderWidth='1px'

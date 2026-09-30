@@ -27,11 +27,15 @@ fecha_desde = checkpoint − 60 minutos
 fecha_hasta = momento en que empieza la ejecución (UTC)
 ```
 
-- 60 minutos hacia atrás porque la búsqueda de la DNCP tiene retraso: algo
-  publicado cerca del checkpoint puede aparecer un rato después. Se observó un
-  retraso de alrededor de media hora; los 60 minutos dejan margen, y volver a pedir
-  esa franja cuesta poco, porque la carga reemplaza por clave primaria y no genera
-  duplicados. El script `medir_retraso_busqueda.py` mide ese retraso.
+- 60 minutos hacia atrás porque la búsqueda de la DNCP tiene retraso. Se actualiza
+  por tandas, más o menos una vez por hora, y cada tanda agrega los procesos de la
+  hora anterior: un proceso tarda entre media hora y hora y media en aparecer
+  (medido el 29/09/2026 durante 8 horas con `medir_retraso_busqueda.py`). Ese
+  retraso no hace perder procesos: el checkpoint es la fecha del último proceso
+  visto, no la hora de la ejecución, y en la medición las tandas llegaron en orden
+  de fecha, así que lo que aparece después tiene fecha posterior al checkpoint. Los
+  60 minutos son un margen por si una tanda llega incompleta; volver a pedir esa
+  franja cuesta poco, porque la carga reemplaza por clave primaria.
 - El techo se fija al empezar. Si se dejara abierto, los procesos que cambian
   durante la ejecución se moverían de página y habría repetidos o huecos.
 - El checkpoint nunca pasa del inicio de la ejecución. Los procesos se descargan

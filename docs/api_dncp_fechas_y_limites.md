@@ -38,9 +38,10 @@ Qué implica para el sistema:
 - Las fechas de la DNCP vienen siempre con `-04:00`, también cuando Paraguay estaba
   en UTC-3. El instante igual es correcto (la carga nocturna figura a las
   `23:00-04:00`, medianoche en Paraguay), así que el sistema lo guarda en UTC.
-- El índice de búsqueda tiene retraso: un registro puede aparecer en la búsqueda un
-  rato después de su fecha. Por eso cada sincronización vuelve a consultar los
-  últimos 60 minutos (*lookback*).
+- El índice de búsqueda se actualiza por tandas, más o menos una vez por hora: un
+  registro aparece entre media hora y hora y media después de su fecha. Cómo lo
+  maneja la sincronización está en
+  [`sincronizacion_y_retencion.md`](sincronizacion_y_retencion.md) §1.
 
 ## 2. Cuántos resultados devuelve
 

@@ -1,12 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Container, Flex, Heading, Text, VStack } from '@chakra-ui/react';
 import { FileText, FileX } from 'lucide-react';
 import ContextBox from '../components/ContextBox';
 import FilterBar from '../components/FilterBar';
 import KpiSummary from '../components/KpiSummary';
 import TimeSeriesChart from '../components/TimeSeriesChart';
+import NotaDatos from '../components/NotaDatos';
 import EntityRankingSwitcher from '../components/EntityRankingSwitcher';
 import DataTable from '../components/DataTable';
+import ContratosMarcados from '../components/ContratosMarcados';
 import useCachedIndicatorData from '../hooks/useCachedIndicatorData';
 import useCommonData from '../hooks/useCommonData';
 import useFiltersFromURL from '../hooks/useFiltersFromURL';
@@ -53,8 +55,14 @@ const TABLE_COLUMNS = [
     key: 'unsigned_contracts',
     header: 'Contratos sin documento',
     type: 'number',
-    render: row =>
-      row.unsigned_contracts != null ? `${row.unsigned_contracts} de ${row.active_contracts}` : '—',
+    render: row => (
+      <Flex direction='column' align='flex-end' gap={0.5}>
+        <Text>
+          {row.unsigned_contracts} de {row.active_contracts}
+        </Text>
+        <ContratosMarcados contratos={row.flagged_contracts} />
+      </Flex>
+    ),
   },
   {
     key: 'entity',
@@ -138,7 +146,7 @@ export default function IndicatorR063() {
             textTransform='uppercase'
             letterSpacing='wide'
           >
-            Indicador R063 · Opacidad Contractual
+            Indicador R063 · Contrato no Publicado
           </Text>
           <Heading as='h1' size={{ base: 'xl', md: '2xl' }} color='fg'>
             Procesos con Contratos sin Documento Publicado
@@ -175,6 +183,16 @@ export default function IndicatorR063() {
           title='¿Está empeorando o mejorando?'
           percentageKey='r063_percentage'
           colorHex={chartLineColor}
+          nota={
+            // solo aplica sin filtro de año o con 2025
+            (filters.year == null || filters.year === 2025) && (
+              <NotaDatos label='Nota sobre los datos de septiembre y octubre de 2025'>
+                En septiembre y octubre de 2025, los datos abiertos de la DNCP no incluyen los
+                documentos de muchos contratos que sí figuran en su portal. En esos meses el
+                porcentaje sale más alto de lo real.
+              </NotaDatos>
+            )
+          }
         />
 
         <EntityRankingSwitcher
@@ -188,7 +206,7 @@ export default function IndicatorR063() {
           tableTitle={
             entidadElegida
               ? `Unidades de contratación de ${entidadElegida}`
-              : 'Ranking de Instituciones — Opacidad Contractual'
+              : 'Ranking de Instituciones — Contrato no Publicado'
           }
           nameKey='entity'
           countKey='r063_count'

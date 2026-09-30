@@ -119,6 +119,7 @@ class R063Service:
                     process_date=item["process_date"],
                     active_contracts=item["active_contracts"],
                     unsigned_contracts=item["unsigned_contracts"],
+                    flagged_contracts=item["flagged_contracts"],
                     entity=item["entity"],
                     api_url=url_api,
                 )

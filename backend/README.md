@@ -12,7 +12,7 @@ Son tres indicadores de la guía de red flags de Open Contracting Partnership
 ([OCP, 2024](https://www.open-contracting.org/wp-content/uploads/2024/12/OCP2024-RedFlagProcurement-1.pdf)).
 Los tres cuentan por proceso de contratación (un `ocid`, en su versión vigente).
 
-R018, único oferente:
+R018, única oferta:
 - Evaluados: licitaciones `open` o `selective` con `numberOfTenderers` informado.
 - Marcados: `numberOfTenderers = 1`.
 - Fecha: fin del período de ofertas (o el inicio si falta).
@@ -22,7 +22,7 @@ R063, contrato no publicado:
 - Marcados: alguno de esos contratos no tiene documento `contractSigned`.
 - Fecha: firma del primer contrato activo (o su inicio si falta).
 
-R064, contrato con modificaciones:
+R064, contrato modificado:
 - Evaluados: procesos con al menos un contrato `active` o `terminated` (solo un contrato firmado
   puede tener enmiendas).
 - Marcados: alguno de esos contratos tiene enmiendas.
@@ -255,6 +255,9 @@ uv run python -m src.scripts.v2.probar_fechas_utc
 # cuánto tarda un proceso en aparecer en la búsqueda de la DNCP (deja un CSV en data/)
 uv run python -m src.scripts.v2.medir_retraso_busqueda --horas 8
 
+# cobertura de los campos que pide OCP para cada indicador (hipótesis secundaria)
+uv run python -m src.scripts.v2.medir_cobertura_campos
+
 # procesos sin partes después de la carga CSV: los vuelve a bajar de la API
 uv run python -m src.scripts.v2.reparar_partes_faltantes            # solo informa
 uv run python -m src.scripts.v2.reparar_partes_faltantes --aplicar  # repara
@@ -270,10 +273,22 @@ Lo que miden los scripts está en
 uv run pytest
 ```
 
-Tests unitarios con mocks, sin base ni red. Cubren el cliente de la DNCP (autenticación, límite
-de pedidos, reintentos), el repositorio de la base (`sync_log`, checkpoint, retención, upsert),
-la sincronización (ventana, repetidos, records con error, checkpoint), el ETL y los filtros de
-la API.
+Hay dos grupos:
+
+- Unitarios (`tests/application`, `tests/etl`, `tests/infrastructure`, `tests/interfaces`):
+  con mocks, sin base ni red. Cubren el cliente de la DNCP (autenticación, límite de pedidos,
+  reintentos), el repositorio de la base (`sync_log`, checkpoint, retención, upsert), la
+  sincronización (ventana, repetidos, records con error, checkpoint), el ETL y los filtros de la
+  API.
+- Con datos controlados (`tests/integration`): un conjunto de procesos armado a mano, en CSV
+  con las columnas de la DNCP (`datos_controlados.py`), con el resultado esperado de cada
+  indicador calculado a mano. Se carga con el ETL real en una base PostgreSQL temporal y se
+  compara con lo que devuelve la API (KPI, serie mensual, rankings, listados y catálogos).
+
+Las pruebas con datos controlados necesitan la base local levantada
+(`docker compose -f docker-compose.yml -f docker-compose.local.yml up -d db`). Crean una base
+nueva y la borran al terminar; no usan el `.env`. Si no hay PostgreSQL local, se saltean. Para
+usar otro servidor: `TEST_DATABASE_URL=postgresql://usuario:clave@host:5432/base`.
 
 ## Dependencias
 

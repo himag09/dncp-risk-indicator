@@ -35,3 +35,12 @@ class StatusResponse(BaseModel):
         description="Última vez que el worker consultó a la DNCP. Si nunca "
         "corrió (solo carga CSV), la fecha del release más reciente.",
     )
+
+
+class FlaggedContract(BaseModel):
+    """Contrato que activó el indicador (R063, R064)."""
+
+    contract_id: str = Field(..., description="Código de contratación (CC) de la DNCP")
+    award_id: str | None = Field(
+        None, description="ID de la adjudicación; arma el enlace a la ficha del contrato"
+    )

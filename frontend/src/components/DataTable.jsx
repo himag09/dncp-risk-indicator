@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Box, Heading, Icon, Link, Skeleton, Spinner, Table, Text } from '@chakra-ui/react';
-import { ExternalLink } from 'lucide-react';
+import { Box, Flex, Heading, Skeleton, Spinner, Table, Text } from '@chakra-ui/react';
 import Pagination from './Pagination';
 import usePaginatedIndicatorData from '../hooks/usePaginatedIndicatorData';
 import ErrorState from './ErrorState';
+import EnlaceExterno from './EnlaceExterno';
 import { cellStyles, headerStyles } from '../utils/tableColumns';
+import { urlPortalDNCP } from '../utils/dncp';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -133,54 +134,53 @@ export default function DataTable({
                         {col.header}
                       </Table.ColumnHeader>
                     ))}
-                    <Table.ColumnHeader
-                      whiteSpace='nowrap'
-                      fontWeight='semibold'
-                      px={4}
-                      py={3}
-                      w='100px'
-                    >
+                    <Table.ColumnHeader whiteSpace='nowrap' fontWeight='semibold' px={4} py={3}>
                       Fuente
                     </Table.ColumnHeader>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {rows.map((row, idx) => (
-                    <Table.Row key={row.release_id || idx}>
-                      <Table.Cell pl={3} pr={1} py={2.5} fontSize='sm' color='fg.muted'>
-                        {(page - 1) * pageSize + idx + 1}
-                      </Table.Cell>
-                      {columns.map(col => (
-                        <Table.Cell key={col.key} px={4} py={2.5} {...cellStyles(col)}>
-                          {col.render ? col.render(row) : (row[col.key] ?? '—')}
+                  {rows.map((row, idx) => {
+                    const portal = urlPortalDNCP(row.ocid);
+                    return (
+                      <Table.Row key={row.release_id || idx}>
+                        <Table.Cell pl={3} pr={1} py={2.5} fontSize='sm' color='fg.muted'>
+                          {(page - 1) * pageSize + idx + 1}
                         </Table.Cell>
-                      ))}
-                      <Table.Cell px={4} py={2.5} whiteSpace='nowrap'>
-                        {row[urlKey] ? (
-                          <Link
-                            href={row[urlKey]}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            colorPalette='blue'
-                            variant='underline'
-                            display='inline-flex'
-                            alignItems='center'
-                            gap={1}
-                            aria-label={`Ver fuente oficial de ${row.title || 'este procedimiento'}`}
-                          >
-                            Ver fuente
-                            <Icon asChild boxSize={3.5}>
-                              <ExternalLink />
-                            </Icon>
-                          </Link>
-                        ) : (
-                          <Text color='fg.muted' fontSize='xs'>
-                            —
-                          </Text>
-                        )}
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
+                        {columns.map(col => (
+                          <Table.Cell key={col.key} px={4} py={2.5} {...cellStyles(col)}>
+                            {col.render ? col.render(row) : (row[col.key] ?? '—')}
+                          </Table.Cell>
+                        ))}
+                        <Table.Cell px={4} py={2.5} whiteSpace='nowrap'>
+                          {portal || row[urlKey] ? (
+                            <Flex direction='column' gap={1}>
+                              {portal && (
+                                <EnlaceExterno
+                                  href={portal}
+                                  label={`Ver ${row.title || 'la licitación'} en el portal de la DNCP`}
+                                >
+                                  Ver licitación
+                                </EnlaceExterno>
+                              )}
+                              {row[urlKey] && (
+                                <EnlaceExterno
+                                  href={row[urlKey]}
+                                  label={`Ver los datos OCDS de ${row.title || 'este proceso'}`}
+                                >
+                                  Datos (JSON)
+                                </EnlaceExterno>
+                              )}
+                            </Flex>
+                          ) : (
+                            <Text color='fg.muted' fontSize='xs'>
+                              —
+                            </Text>
+                          )}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
                 </Table.Body>
               </Table.Root>
             </Box>
